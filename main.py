@@ -10,7 +10,7 @@ from pytz import utc, timezone
 from dotenv import load_dotenv
 from requests import get as rget
 from pyrogram import Client
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from pyrogram.errors import FloodWait, MessageNotModified
 from pyrogram.raw import functions
 
@@ -143,16 +143,36 @@ async def editMsg(chat_id, message_id, text):
     except MessageNotModified:
         pass
 
+async def editMsgWithMedia(chat_id, message_id, text, media_url):
+    try:
+        post_msg = await client.edit_message_media(
+            int(chat_id),
+            int(message_id),
+            InputMediaPhoto(media=media_url, caption=text)
+        )
+        if BOT_TOKEN and MSG_BUTTONS:
+            async with bot:
+                await bot.edit_message_reply_markup(post_msg.chat.id, post_msg.id, make_btns())
+    except FloodWait as f:
+        await sleep(f.value * 1.2)
+        await editMsgWithMedia(chat_id, message_id, text, media_url)
+    except MessageNotModified:
+        pass
+
 async def editStatusMsg(status_msg):
     _channels = channels.values()
     if len(_channels) == 0:
         log.warning("No channels found")
         exit(1)
+    media_url = getenv("MEDIA")
     for channel in _channels:
         log.info(f"Updating Channel ID : {channel['chat_id']} & Message ID : {channel['message_id']}")
         await sleep(1.5)
         try:
-            await editMsg(channel['chat_id'], channel['message_id'], status_msg)
+            if media_url:
+                await editMsgWithMedia(channel['chat_id'], channel['message_id'], status_msg, media_url)
+            else:
+                await editMsg(channel['chat_id'], channel['message_id'], status_msg)
         except Exception as e:
             log.error(str(e))
             continue
