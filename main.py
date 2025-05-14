@@ -63,8 +63,8 @@ except Exception as e:
     exit(1)
 
 HEADER_MSG = getenv("HEADER_MSG", "**Telegram Bot Status :**")
-FOOTER_MSG = getenv("FOOTER_MSG", "**Updates :** _@FZXParadox_\n\n**Repo :** __https://github.com/SilentDemonSD/TgBotStatus__")
-MSG_BUTTONS = getenv("MSG_BUTTONS", "Join CyberPunk Now!#https://t.me/CyberPunkGrp")
+FOOTER_MSG = getenv("FOOTER_MSG", "— Powered by Beast")
+MSG_BUTTONS = getenv("MSG_BUTTONS")
 TIME_ZONE = getenv("TIME_ZONE", "Asia/Kolkata")
 
 log.info("Connecting pyroBotClient")
@@ -169,9 +169,9 @@ async def check_bots():
 
 """
     await editStatusMsg(status_message + f"""**• Status Update Stats:**
-┌ **Bots Verified :** 0 out of {totalBotsCount}
+╭ **Bots Verified :** 0 out of {totalBotsCount}
 ├ **Progress :** [○○○○○○○○○○] 0%
-└ **Time Elasped :** 0s""")
+╰ **Time Elasped :** 0s""")
 
     bot_no, avl_bots = 0, 0
     for bot, bdata in bots.items():
@@ -209,16 +209,16 @@ async def check_bots():
         bot_no += 1
         
         await editStatusMsg(status_message + f"""**Status Update Stats:**
-┌ **Bots Checked :** {bot_no} out of {totalBotsCount}
+╭ **Bots Checked :** {bot_no} out of {totalBotsCount}
 ├ **Progress :** {progress_bar(bot_no, totalBotsCount)}
-└ **Time Elasped :** {get_readable_time(time() - start_time)}""")
+╰ **Time Elasped :** {get_readable_time(time() - start_time)}""")
 
     end_time = time()
     log.info("Completed periodic checks.")
 
     status_message = header_msg + f"• **Avaliable Bots :** {avl_bots} out of {totalBotsCount}\n\n"
     for bot in bot_stats.keys():
-        status_message += f"┌ **Bot :** {await bot_info(bot_stats[bot]['bot_uname'])}\n├ **Username :** {bot_stats[bot]['bot_uname']}\n"
+        status_message += f"╭ **Bot :** {await bot_info(bot_stats[bot]['bot_uname'])}\n├ **Username :** {bot_stats[bot]['bot_uname']}\n"
         if (stdata := bot_stats[bot].get('status_data')):
             try:
                 status_message += f'├ **Commit Date :** {stdata["commit_date"]}\n'
@@ -243,18 +243,17 @@ async def check_bots():
         if bot_stats[bot].get("response_time"):
             status_message += f"├ **Ping :** {bot_stats[bot]['response_time']}\n"
         status_message += f"""├ **Status :** {bot_stats[bot]['status']}
-└ **Host :** {bot_stats[bot]['host']}
+╰ **Host :** {bot_stats[bot]['host']}
             
 """
 
     total_time = end_time - start_time
-    status_message += f"• **Last Periodic Checked in {round(total_time, 2)}s**\n\n"
-    
     current_time = datetime.now(utc).astimezone(timezone(TIME_ZONE))
     status_message += f"""• **Last Check Details :**
-┌ **Time :** `{current_time.strftime('%H:%M:%S')} hrs`
+╭ **Time :** `{current_time.strftime('%H:%M:%S')} hrs`
 ├ **Date :** `{current_time.strftime('%d %B %Y')}`
-└ **Time Zone :** `{TIME_ZONE} (UTC {current_time.strftime('%z')})`
+├ **Elapsed :** `{round(total_time, 2)}s`
+╰ **Time Zone :** `{TIME_ZONE} (UTC {current_time.strftime('%z')})`
 
 __• Auto Status Update in 15 mins Interval__
 
