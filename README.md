@@ -1,29 +1,3 @@
-<div align="center">
-
-<a href="https://github.com/weebzone/WZML">
-      <kbd>
-          <img width="450" src="https://te.legra.ph/file/6ca914415e991851975ea.jpg" alt="Tg Updater Logo">
-      </kbd>
-</a>
-    
-## ***TgBotStatus***
-_A Simple Telegram Status Updater to Pretify All your Bots for your Channel in single Status... with Advance Stats_
-
-</div>
-
----
-
-## 📇 ***Features***
-- _Sequential Status Check_
-- _Progress Bar on Checking_
-- _Calculate Ping Time of Response_
-- _Show Available/Working Bots_
-- _Fresh Clean UI_
-- _Set Custom Host for Each Bot(s)_
-- _Support for MLTB Advanced Status (More Status Details)_
-
----
-
 ## 📦 ***Repo Config SetUp***:
 
 ### _`.env` File SetUp :_
@@ -139,54 +113,8 @@ Either Add these URL to these Variables or Directly Add a File on Repo as File n
 
 ---
 
-## ***Advanced MLTB Status***:
-_Set the Code in the Required File `wserver.py` at the Last_
-**Path :** `./web/wserver.py `
-
-```py
-from time import sleep, time
-from psutil import boot_time, disk_usage, net_io_counters
-from subprocess import check_output
-from os import path as ospath
-
-botStartTime = time()
-if ospath.exists('.git'):
-    commit_date = check_output(["git log -1 --date=format:'%y/%m/%d %H:%M' --pretty=format:'%cd'"], shell=True).decode()
-else:
-    commit_date = 'No UPSTREAM_REPO'
-
-@app.route('/status', methods=['GET'])
-def status():
-    bot_uptime = time() - botStartTime
-    uptime = time() - boot_time()
-    sent = net_io_counters().bytes_sent
-    recv = net_io_counters().bytes_recv
-    return {
-        'commit_date': commit_date,
-        'uptime': uptime,
-        'on_time': bot_uptime,
-        'free_disk': disk_usage('.').free,
-        'total_disk': disk_usage('.').total,
-        'network': {
-            'sent': sent,
-            'recv': recv,
-        },
-    }
-```
-
----
-
 ## ♻️ ***Cron Job Workflow***:
 - Format for Tg Message Edit/Update Interval
   - `*/5 * * * *`: Update Every 5mins Interval
     > Due to Github Runner, Working Time Varies from 5min to more..
   - `0 */2 * * *`: Update Every 2hrs Interval
-
----
-
-## ℹ️ ***Credits***:
-- SilentDemonSD (Developer)
-
-## 📚 ***References***:
-- Based on `xditya/BotStatus` & `junedkh/mirror-bot-status`
-- _Written in PyroFork Framework (Extended Pyrogram)_

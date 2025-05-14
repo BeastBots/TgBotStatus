@@ -62,7 +62,7 @@ except Exception as e:
     log.error("Error: config.json is not valid")
     exit(1)
 
-HEADER_MSG = getenv("HEADER_MSG", "**Welcome to Mirror Leech Channel**")
+HEADER_MSG = getenv("HEADER_MSG", "🔥 **Mirror Beast Gateways!**")
 FOOTER_MSG = getenv("FOOTER_MSG", "— Powered by Beast")
 MSG_BUTTONS = getenv("MSG_BUTTONS")
 TIME_ZONE = getenv("TIME_ZONE", "Asia/Kolkata")
@@ -165,7 +165,7 @@ async def check_bots():
     header_msg = f"__**{HEADER_MSG}**__\n\n"
     status_message = header_msg + """• **Avaliable Bots :** __Checking...__
 
-• `Currently Ongoing Periodic Check`
+• `Updating Gateways...`
 
 """
     await editStatusMsg(status_message + f"""**• Status Update Stats:**
@@ -195,11 +195,11 @@ async def check_bots():
                 resp_time = history_msgs.messages[0].date - int(pre_time)
                 avl_bots += 1
                 bot_stats[bot]["response_time"] = f"`{get_readable_time(resp_time)}`"
-                bot_stats[bot]["status"] = "UP ✅"
+                bot_stats[bot]["status"] = "Alive 🔥"
             await client.read_chat_history(bdata['bot_uname'])
         except Exception as e:
             log.info(str(e))
-            bot_stats[bot]["status"] = "DOWN ❌"
+            bot_stats[bot]["status"] = "DED 💀"
 
         log.info(f"Checked {bdata['bot_uname']} & Status : {bot_stats[bot]['status']}.")
         bot_no += 1
@@ -212,10 +212,10 @@ async def check_bots():
     end_time = time()
     log.info("Completed periodic checks.")
 
-    status_message = header_msg + f"• **Available Bots :** {avl_bots} out of {totalBotsCount}\n\n"
+    status_message = header_msg + f"• **Available Bots :** {avl_bots}\n\n"
     for bot in bot_stats.keys():
-        status_message += f" **Bot :** {await bot_info(bot_stats[bot]['bot_uname'])} is {bot_stats[bot]['status']}\n"
-    status_message += f"""__High-speed leeching and mirroring made simple and reliable.__\n__Please use the service responsibly.__
+        status_message += f"{await bot_info(bot_stats[bot]['bot_uname'])} is {bot_stats[bot]['status']}\n\n"
+    status_message += f"""__• All DC: 4 Powered, Premium Bots__\n__• All Bots Have 4GB Leech Support__\n__• No Limits ~ Mirror Leech Unlimited__\n__• No Shorteners ~ No Ads__\n__• Premium Google Drive | Index Links__
 
 {FOOTER_MSG}"""
     await editStatusMsg(status_message)
