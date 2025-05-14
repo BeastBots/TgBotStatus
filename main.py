@@ -81,12 +81,13 @@ if BOT_TOKEN:
         exit(1)
 
 def progress_bar(current, total):
-    pct = current/total * 100
+    total_balls = total  # Number of balls will match the total number of bots
+    pct = current / total * 100
     pct = float(str(pct).strip('%'))
     p = min(max(pct, 0), 100)
-    cFull = int(p // 8)
+    cFull = int(p // (100 / total_balls))
     p_str = '⬤' * cFull
-    p_str += '○' * (12 - cFull)
+    p_str += '○' * (total_balls - cFull)
     return f"[{p_str}] {round(pct, 2)}%"
     
 def get_readable_time(seconds):
@@ -170,7 +171,6 @@ async def check_bots():
 """
     await editStatusMsg(status_message + f"""**• Status Update Stats:**
 **Bots Verified :** 0 out of {totalBotsCount}
-**Progress :** [○○○○○○○○○○] 0%
 **Time Elapsed :** 0s""")
 
     bot_no, avl_bots = 0, 0
@@ -183,7 +183,7 @@ async def check_bots():
         pre_time = time()
         try:
             sent_msg = await client.send_message(bdata['bot_uname'], "/start")
-            await sleep(10)
+            await sleep(5)
             history_msgs = await client.invoke(
                 functions.messages.GetHistory(
                     peer=await client.resolve_peer(bdata['bot_uname']), offset_id=0, offset_date=0, add_offset=0, limit=1, max_id=0, min_id=0, hash=0,
