@@ -5,6 +5,7 @@ from json import loads as json_loads
 from time import time
 from os import getenv, path as ospath 
 from datetime import datetime
+import traceback
 
 from pytz import utc, timezone
 from dotenv import load_dotenv
@@ -142,6 +143,9 @@ async def editMsg(chat_id, message_id, text):
         await editMsg(chat_id, message_id, text)
     except MessageNotModified:
         pass
+    except Exception as e:
+        log.error(f"Error in editMsg: {str(e)}")
+        log.error(traceback.format_exc())
 
 async def editMsgWithMedia(chat_id, message_id, text, media_url):
     try:
@@ -158,6 +162,9 @@ async def editMsgWithMedia(chat_id, message_id, text, media_url):
         await editMsgWithMedia(chat_id, message_id, text, media_url)
     except MessageNotModified:
         pass
+    except Exception as e:
+        log.error(f"Error in editMsgWithMedia: {str(e)}")
+        log.error(traceback.format_exc())
 
 async def editStatusMsg(status_msg):
     _channels = channels.values()
@@ -174,7 +181,8 @@ async def editStatusMsg(status_msg):
             else:
                 await editMsg(channel['chat_id'], channel['message_id'], status_msg)
         except Exception as e:
-            log.error(str(e))
+            log.error(f"Error in editStatusMsg for Channel ID {channel['chat_id']}: {str(e)}")
+            log.error(traceback.format_exc())
             continue
 
 async def check_bots():
@@ -196,21 +204,24 @@ async def check_bots():
     bot_no, avl_bots = 0, 0
     for bot, bdata in bots.items():
         if not bot or not bdata:
-            break
+            log.warning(f"Skipping bot due to missing data: {bot}")
+            continue
         bot_stats.setdefault(bot, {})
         bot_stats[bot]['bot_uname'] = bdata['bot_uname']
         bot_stats[bot]['host'] = bdata['host']
         pre_time = time()
         try:
+            log.info(f"Sending /start to bot: {bdata['bot_uname']}")
             sent_msg = await client.send_message(bdata['bot_uname'], "/start")
             await sleep(5)
+            log.info(f"Fetching message history for bot: {bdata['bot_uname']}")
             history_msgs = await client.invoke(
                 functions.messages.GetHistory(
                     peer=await client.resolve_peer(bdata['bot_uname']), offset_id=0, offset_date=0, add_offset=0, limit=1, max_id=0, min_id=0, hash=0,
                 )
             )
             if sent_msg.id == history_msgs.messages[0].id:
-                bot_stats[bot]["status"] = "DOWN ❌"
+                bot_stats[bot]["status"] = "DED 💀"
             else:
                 resp_time = history_msgs.messages[0].date - int(pre_time)
                 avl_bots += 1
@@ -218,7 +229,8 @@ async def check_bots():
                 bot_stats[bot]["status"] = "Alive 🔥"
             await client.read_chat_history(bdata['bot_uname'])
         except Exception as e:
-            log.info(str(e))
+            log.error(f"Error while checking bot {bdata['bot_uname']}: {str(e)}")
+            log.error(traceback.format_exc())
             bot_stats[bot]["status"] = "DED 💀"
 
         log.info(f"Checked {bdata['bot_uname']} & Status : {bot_stats[bot]['status']}.")
@@ -241,7 +253,13 @@ async def check_bots():
     await editStatusMsg(status_message)
 
 async def main():
-    async with client:
-        await check_bots()
+    try:
+        log.info("Starting main workflow...")
+        async with client:
+            await check_bots()
+        log.info("Main workflow completed successfully.")
+    except Exception as e:
+        log.error(f"Error in main workflow: {str(e)}")
+        log.error(traceback.format_exc())
 
 client.run(main())
