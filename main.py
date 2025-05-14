@@ -234,8 +234,8 @@ async def check_bots():
 
     status_message = header_msg + f"• **Available Bots :** {avl_bots}\n\n"
     for bot in bot_stats.keys():
-        status_message += f"{await bot_info(bot_stats[bot]['bot_uname'])} is {bot_stats[bot]['status']}\n\n"
-    status_message += f"""__• All DC: 4 Powered, Premium Bots__\n__• All Bots Have 4GB Leech Support__\n__• No Limits ~ Mirror Leech Unlimited__\n__• No Shorteners ~ No Ads__\n__• Premium Google Drive | Index Links__
+        status_message += f"• __{await bot_info(bot_stats[bot]['bot_uname'])}  is  `{bot_stats[bot]['status']}`__\n"
+    status_message += f"""\n__• All DC: 4 Powered, Premium Bots__\n__• All Bots Have 4GB Leech Support__\n__• No Limits ~ Mirror Leech Unlimited__\n__• No Shorteners ~ No Ads__\n__• Premium Google Drive | Index Links__
 
 {FOOTER_MSG}"""
     await editStatusMsg(status_message)
