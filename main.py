@@ -257,24 +257,26 @@ class BotStatusManager:
                 continue
                 
             # Add group header and bots in a single blockquote
-            status_msg += f"<blockquote><b>{group_name}</b>\n"
-            # Add bots in this group
+            status_msg += f"<blockquote><b>{group_name}</b>\n"            # Add bots in this group
             for bot_id, stats, bot_data in grouped_bots[group_name]:
                 custom_name = bot_data.get('custom_name', stats.get('bot_uname', bot_id))
+                bot_username = stats.get('bot_uname', bot_id)
                 status = stats.get('status', 'Unknown')
                 
-                status_msg += f"<code>{custom_name} : </code> {status}\n"
+                # Create clickable link using Telegram's inline link format
+                bot_link = f"https://t.me/{bot_username.replace('@', '')}"
+                status_msg += f"<a href='{bot_link}'>{custom_name}</a> : <code>{status}</code>\n"
             
-            status_msg += "</blockquote>\n\n"
-        
-        # Handle any bots that might not have a group (fallback)
+            status_msg += "</blockquote>\n\n"        # Handle any bots that might not have a group (fallback)
         if 'OTHER' in grouped_bots and 'OTHER' not in self.groups:
             status_msg += f"<blockquote><b>OTHER</b>\n"
             for bot_id, stats, bot_data in grouped_bots['OTHER']:
                 custom_name = bot_data.get('custom_name', stats.get('bot_uname', bot_id))
+                bot_username = stats.get('bot_uname', bot_id)
                 status = stats.get('status', 'Unknown')
-                
-                status_msg += f"<code>{custom_name} : </code> {status}\n"
+                  # Create clickable link using Telegram's inline link format
+                bot_link = f"https://t.me/{bot_username.replace('@', '')}"
+                status_msg += f"<a href='{bot_link}'>{custom_name}</a> : <code>{status}</code>\n"
             status_msg += "</blockquote>\n\n"
         
         return status_msg
