@@ -4,11 +4,9 @@ from logging import basicConfig, INFO, getLogger
 from json import loads as json_loads
 from time import time
 from os import getenv, path as ospath 
-from datetime import datetime
 import traceback
 from collections import defaultdict, OrderedDict
 
-from pytz import utc, timezone
 from dotenv import load_dotenv
 from requests import get as rget
 from pyrogram import Client
@@ -55,7 +53,6 @@ BOT_TOKEN = getenv('BOT_TOKEN')
 HEADER_MSG = getenv("HEADER_MSG", "🔥 **Mirror Beast Gateways!**")
 FOOTER_MSG = getenv("FOOTER_MSG", "— Powered by Beast")
 MSG_BUTTONS = getenv("MSG_BUTTONS")
-TIME_ZONE = getenv("TIME_ZONE", "Asia/Kolkata")
 
 # Validation
 if PYRO_SESSION is None:
@@ -252,43 +249,30 @@ class BotStatusManager:
         for group_name in grouped_bots:
             grouped_bots[group_name].sort(key=lambda x: list(bots.keys()).index(x[0]))
         
-        header = f"<blockquote><b>{HEADER_MSG}</b></blockquote>\n\n"
+        header = f"<b>{HEADER_MSG}</b>\n\n"
         status_msg = header + f"• <b>Available Bots:</b> {self.available_bots}\n\n"
-        
-        # Use the groups found in config to maintain order
+          # Use the groups found in config to maintain order
         for group_name in self.groups.keys():
             if group_name not in grouped_bots:
                 continue
-                
-            # Add group header
-            status_msg += f"<blockquote><b>{group_name}</b></blockquote>\n"
-            
+                  # Add group header and bots in a single blockquote
+            status_msg += f"<blockquote><b>{group_name}</b>\n"
             # Add bots in this group
             for bot_id, stats, bot_data in grouped_bots[group_name]:
                 custom_name = bot_data.get('custom_name', stats.get('bot_uname', bot_id))
                 status = stats.get('status', 'Unknown')
-                response_time = stats.get('response_time', '')
-                
-                if response_time and status == "Alive 🔥":
-                    status_msg += f"• <b>{custom_name}</b> is <code>{status}</code> ({response_time})\n"
-                else:
-                    status_msg += f"• <b>{custom_name}</b> is <code>{status}</code>\n"
+                status_msg += f"<code>{custom_name} : {status}</code>\n"
             
-            status_msg += "\n"
-        
-        # Handle any bots that might not have a group (fallback)
+            status_msg += "</blockquote>\n\n"
+          # Handle any bots that might not have a group (fallback)
         if 'OTHER' in grouped_bots and 'OTHER' not in self.groups:
-            status_msg += f"<blockquote><b>OTHER</b></blockquote>\n"
+            status_msg += f"<blockquote><b>OTHER</b>\n"
             for bot_id, stats, bot_data in grouped_bots['OTHER']:
                 custom_name = bot_data.get('custom_name', stats.get('bot_uname', bot_id))
                 status = stats.get('status', 'Unknown')
-                response_time = stats.get('response_time', '')
                 
-                if response_time and status == "Alive 🔥":
-                    status_msg += f"• <b>{custom_name}</b> is <code>{status}</code> ({response_time})\n"
-                else:
-                    status_msg += f"• <b>{custom_name}</b> is <code>{status}</code>\n"
-            status_msg += "\n"
+                status_msg += f"<code>{custom_name} : </code> {status}\n"
+            status_msg += "</blockquote>\n\n"
         
         # Add footer
         footer_info = [
@@ -296,8 +280,7 @@ class BotStatusManager:
             "• All Bots Have 4GB Leech Support", 
             "• No Limits ~ Mirror Leech Unlimited",
             "• No Shorteners ~ No Ads",
-            "• Premium Google Drive | Index Links"
-        ]
+            "• Premium Google Drive | Index Links"        ]
         
         status_msg += "<blockquote>" + "\n".join(footer_info) + "</blockquote>\n\n"
         status_msg += f"<i>{FOOTER_MSG}</i>"
@@ -309,8 +292,6 @@ class BotStatusManager:
         self.bot_stats.setdefault(bot_id, {})
         self.bot_stats[bot_id]['bot_uname'] = bot_data['bot_uname']
         self.bot_stats[bot_id]['host'] = bot_data.get('host', 'Unknown')
-        
-        pre_time = time()
         
         try:
             log.info(f"Checking bot: {bot_data['bot_uname']} (Group: {bot_data.get('group', 'OTHER')})")
@@ -336,9 +317,7 @@ class BotStatusManager:
             if sent_msg.id == history_msgs.messages[0].id:
                 self.bot_stats[bot_id]["status"] = "DED 💀"
             else:
-                resp_time = history_msgs.messages[0].date - int(pre_time)
                 self.available_bots += 1
-                self.bot_stats[bot_id]["response_time"] = self.get_readable_time(resp_time)
                 self.bot_stats[bot_id]["status"] = "Alive 🔥"
                 
             await client.read_chat_history(bot_data['bot_uname'])
@@ -359,7 +338,7 @@ class BotStatusManager:
         log.info(f"Groups detected: {list(self.groups.keys())}")
         
         # Initial status message
-        header = f"<blockquote><b>{HEADER_MSG}</b></blockquote>\n\n"
+        header = f"<b>{HEADER_MSG}</b>\n\n"
         initial_msg = header + f"""• <b>Available Bots:</b> <i>Checking...</i>
 
 • <code>Updating Gateways...</code>
