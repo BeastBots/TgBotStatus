@@ -50,7 +50,7 @@ API_ID = int(getenv("API_ID", 0))
 API_HASH = getenv("API_HASH")
 PYRO_SESSION = getenv('PYRO_SESSION')
 BOT_TOKEN = getenv('BOT_TOKEN')
-HEADER_MSG = getenv("HEADER_MSG", "🔥 **Mirror Beast Gateways!**")
+HEADER_MSG = getenv("HEADER_MSG", "🔥 Mirror Beast Gateways!")
 FOOTER_MSG = getenv("FOOTER_MSG", "— Powered by Beast")
 MSG_BUTTONS = getenv("MSG_BUTTONS")
 
@@ -244,27 +244,30 @@ class BotStatusManager:
             bot_data = bots.get(bot_id, {})
             group_name = bot_data.get('group', 'OTHER')  # Default group if not specified
             grouped_bots[group_name].append((bot_id, stats, bot_data))
-        
-        # Sort bots within each group by their order in the original config
+          # Sort bots within each group by their order in the original config
         for group_name in grouped_bots:
             grouped_bots[group_name].sort(key=lambda x: list(bots.keys()).index(x[0]))
         
         header = f"<b>{HEADER_MSG}</b>\n\n"
         status_msg = header + f"• <b>Available Bots:</b> {self.available_bots}\n\n"
-          # Use the groups found in config to maintain order
+        
+        # Use the groups found in config to maintain order
         for group_name in self.groups.keys():
             if group_name not in grouped_bots:
                 continue
-                  # Add group header and bots in a single blockquote
+                
+            # Add group header and bots in a single blockquote
             status_msg += f"<blockquote><b>{group_name}</b>\n"
             # Add bots in this group
             for bot_id, stats, bot_data in grouped_bots[group_name]:
                 custom_name = bot_data.get('custom_name', stats.get('bot_uname', bot_id))
                 status = stats.get('status', 'Unknown')
-                status_msg += f"<code>{custom_name} : {status}</code>\n"
+                
+                status_msg += f"<code>{custom_name} : </code> {status}\n"
             
             status_msg += "</blockquote>\n\n"
-          # Handle any bots that might not have a group (fallback)
+        
+        # Handle any bots that might not have a group (fallback)
         if 'OTHER' in grouped_bots and 'OTHER' not in self.groups:
             status_msg += f"<blockquote><b>OTHER</b>\n"
             for bot_id, stats, bot_data in grouped_bots['OTHER']:
@@ -273,17 +276,6 @@ class BotStatusManager:
                 
                 status_msg += f"<code>{custom_name} : </code> {status}\n"
             status_msg += "</blockquote>\n\n"
-        
-        # Add footer
-        footer_info = [
-            "• All DC: 4 Powered, Premium Bots",
-            "• All Bots Have 4GB Leech Support", 
-            "• No Limits ~ Mirror Leech Unlimited",
-            "• No Shorteners ~ No Ads",
-            "• Premium Google Drive | Index Links"        ]
-        
-        status_msg += "<blockquote>" + "\n".join(footer_info) + "</blockquote>\n\n"
-        status_msg += f"<i>{FOOTER_MSG}</i>"
         
         return status_msg
 
